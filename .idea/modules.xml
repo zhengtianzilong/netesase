@@ -3,7 +3,9 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://D:\LearnAndroid\netesase\app\app.iml" filepath="D:\LearnAndroid\netesase\app\app.iml" />
       <module fileurl="file://$PROJECT_DIR$/netesase.iml" filepath="$PROJECT_DIR$/netesase.iml" />
+      <module fileurl="file://D:\LearnAndroid\netesase\netesase.iml" filepath="D:\LearnAndroid\netesase\netesase.iml" />
     </modules>
   </component>
 </project>

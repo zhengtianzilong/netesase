@@ -12,6 +12,7 @@ import android.util.Log;
 import com.caizilong.netesase.splash.bean.Ads;
 import com.caizilong.netesase.splash.bean.AdsDetail;
 import com.caizilong.netesase.util.Constant;
+import com.caizilong.netesase.util.ImageUtil;
 import com.caizilong.netesase.util.Md5Helper;
 
 import java.io.File;
@@ -21,6 +22,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.List;
+
 
 /**
  * Created by caizilong on 2018/1/10.
@@ -61,7 +63,7 @@ public class DownloadImageService extends IntentService {
                     String catch_name = Md5Helper.toMD5(img_url);
 
                     // 先判断图片是否存在
-                    if (!checkImageIsDownLoad(catch_name)){
+                    if (!ImageUtil.checkImageIsDownLoad(catch_name)){
                         // 下载图片
                         downloadImage(img_url, catch_name);
                     }
@@ -97,13 +99,13 @@ public class DownloadImageService extends IntentService {
         // 判断手机SD卡是否装载
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
 
-            File sdCard = Environment.getExternalStorageDirectory();
+                File sdCard = Environment.getExternalStorageDirectory();
 
-            File cacheFile = new File(sdCard, Constant.CACHE);
+                File cacheFile = new File(sdCard, Constant.CACHE);
 
-            if (!cacheFile.exists()){
-                cacheFile.mkdirs();
-            }
+                if (!cacheFile.exists()){
+                    cacheFile.mkdirs();
+                }
 
             File image = new File(cacheFile, MD5_name + ".jpg");
 
@@ -132,27 +134,7 @@ public class DownloadImageService extends IntentService {
 
     }
 
-    public boolean checkImageIsDownLoad(String imageName){
 
-        File SD = Environment.getExternalStorageDirectory();
-
-        File cacheFile = new File(SD, Constant.CACHE);
-
-        File image = new File(cacheFile, imageName);
-
-        if (image.exists()){
-
-            Bitmap bitmap = BitmapFactory.decodeFile(image.getAbsolutePath());
-
-            if (bitmap != null){
-                return true;
-            }
-        }else {
-            return false;
-        }
-
-        return false;
-    }
 
 
 }
