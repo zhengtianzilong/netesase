@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.media.Image;
+import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -16,6 +18,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
 
+import com.caizilong.netesase.MainActivity;
 import com.caizilong.netesase.R;
 import com.caizilong.netesase.service.DownloadImageService;
 import com.caizilong.netesase.splash.bean.Action;
@@ -45,6 +48,9 @@ public class SplashActivity extends AppCompatActivity {
     private static final String JSON_CACHE_TIME_OUT = "ads_Json_TIME_OUT";
     private static final String JSON_CACHE_LAST_SUCCESS = "ads_Json_last";
     private static final String LAST_IMAGE_INDEX = "image_index";
+    private boolean isAllowed = false;
+
+    private Handler mHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +64,8 @@ public class SplashActivity extends AppCompatActivity {
 
         ads_image = (ImageView)findViewById(R.id.ads);
 
+        mHandler = new Handler();
+
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
             //申请WRITE_EXTERNAL_STORAGE权限
@@ -69,13 +77,19 @@ public class SplashActivity extends AppCompatActivity {
                 != PackageManager.PERMISSION_GRANTED) {
             //申请WRITE_EXTERNAL_STORAGE权限
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                    0);
+                    1);
         }
+            getAds();
+    }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        isAllowed = true;
         getAds();
 
     }
-
 
     // 判断是否需要保存缓存
     public void getAds(){
@@ -104,60 +118,76 @@ public class SplashActivity extends AppCompatActivity {
 
         String cache = SharePrenceUtil.getString(SplashActivity.this, JSON_CACHE);
 
-        int index = SharePrenceUtil.getInt(SplashActivity.this, LAST_IMAGE_INDEX);
+        if (!TextUtils.isEmpty(cache)){
+            int index = SharePrenceUtil.getInt(SplashActivity.this, LAST_IMAGE_INDEX);
 
-        Ads ads = JsonUtil.parseJson(cache, Ads.class);
+            Ads ads = JsonUtil.parseJson(cache, Ads.class);
 
-        if (null == ads){
-            return;
-        }
+            if (null == ads){
+                return;
+            }
 
-        List<AdsDetail> adsDetails = ads.getAds();
+            List<AdsDetail> adsDetails = ads.getAds();
 
-        if (null != adsDetails && adsDetails.size() > 0){
-            final AdsDetail detail = adsDetails.get(index % ads.getAds().size());
+            if (null != adsDetails && adsDetails.size() > 0){
+                final AdsDetail detail = adsDetails.get(index % ads.getAds().size());
 
-            List<String> res_url = detail.getRes_url();
+                List<String> res_url = detail.getRes_url();
 
-            if (null != res_url && !TextUtils.isEmpty(res_url.get(0))){
+                if (null != res_url && !TextUtils.isEmpty(res_url.get(0))){
 
-                String url = res_url.get(0);
-                String imageName = Md5Helper.toMD5(url);
+                    String url = res_url.get(0);
+                    String imageName = Md5Helper.toMD5(url);
 
-                File image = ImageUtil.getFileByName(imageName);
+                    File image = ImageUtil.getFileByName(imageName);
 
-                if (image.exists()){
-                    Bitmap bitmap= ImageUtil.getBitmapByFile(image);
-                    ads_image.setImageBitmap(bitmap);
-                    index++;
+                    if (image.exists()){
+                        Bitmap bitmap= ImageUtil.getBitmapByFile(image);
+                        ads_image.setImageBitmap(bitmap);
+                        index++;
 
-                    SharePrenceUtil.saveInt(SplashActivity.this, LAST_IMAGE_INDEX, index);
+                        SharePrenceUtil.saveInt(SplashActivity.this, LAST_IMAGE_INDEX, index);
 
-                    ads_image.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            Action action = detail.getAction_params();
+                        ads_image.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                Action action = detail.getAction_params();
 
-                            if (action != null && !TextUtils.isEmpty(action.getLink_url())){
-                                Intent intent = new Intent(SplashActivity.this, WebViewActivity.class);
-                                intent.putExtra(WebViewActivity.ACTION_NAME,action.getLink_url());
-                                startActivity(intent);
+                                if (action != null && !TextUtils.isEmpty(action.getLink_url())){
+                                    Intent intent = new Intent(SplashActivity.this, WebViewActivity.class);
+                                    intent.putExtra(WebViewActivity.ACTION_NAME,action.getLink_url());
+                                    startActivity(intent);
+
+                                }
 
                             }
+                        });
 
-                        }
-                    });
+                    }
+
 
                 }
 
-
             }
 
+        }else {
+            mHandler.postDelayed(NoPhotoGotoMain, 300);
+
         }
+
 
 
 
     }
+
+
+    Runnable NoPhotoGotoMain = new Runnable() {
+        @Override
+        public void run() {
+            Intent intent = new Intent(SplashActivity.this, MainActivity.class);
+            startActivity(intent);
+        }
+    };
 
 
     // 网络请求

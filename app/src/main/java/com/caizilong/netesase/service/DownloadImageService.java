@@ -67,8 +67,6 @@ public class DownloadImageService extends IntentService {
                         // 下载图片
                         downloadImage(img_url, catch_name);
                     }
-
-
                 }
 
             }
