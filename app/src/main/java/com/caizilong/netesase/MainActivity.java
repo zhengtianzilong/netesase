@@ -1,73 +1,90 @@
 package com.caizilong.netesase;
 
-import android.annotation.SuppressLint;
-import android.os.Handler;
-import android.os.Message;
+import android.content.Context;
+import android.support.v4.app.FragmentTabHost;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TabHost;
+import android.widget.TextView;
 
-import com.caizilong.netesase.splash.TimeView;
+import com.caizilong.netesase.news.fragment.EmptyFragment;
+import com.caizilong.netesase.news.fragment.MineFragment;
+import com.caizilong.netesase.news.fragment.NewsFragment;
+import com.caizilong.netesase.news.fragment.ReadingFragment;
+import com.caizilong.netesase.news.fragment.TopicFragment;
+import com.caizilong.netesase.news.fragment.VedioFragment;
+
 
 public class MainActivity extends AppCompatActivity {
 
-    private TimeView timeView;
 
-    private int length = 2 * 1000;
-
-    private int space = 250;
-
-    private int now = 0;
-
-    Handler mHandler;
-
-    @SuppressLint("HandlerLeak")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        timeView = (TimeView)findViewById(R.id.timeView);
+        FragmentTabHost tabHost = (FragmentTabHost)findViewById(R.id.tab_Host);
 
-        timeView.setD(200);
+        // 1 绑定
+        tabHost.setup(this, getSupportFragmentManager(), R.id.content);
 
 
-        final int total = length / space;
+        String[] tabtitles = getResources().getStringArray(R.array.tab_title);
 
-        mHandler = new Handler(){
-            @Override
-            public void handleMessage(Message msg) {
-                super.handleMessage(msg);
-                switch (msg.what){
-                    case 0:
-                        int nows = msg.arg1;
+        int[] icons = new int[]{R.drawable.news_selector, R.drawable.reading_selector, R.drawable.topic_selector, R.drawable.vedio_selector, R.drawable.mine_selector};
 
-                        if (nows <= total){
-                            timeView.setProgress(total, nows);
-                        }else {
-                            mHandler.removeCallbacks(runnable);
-                        }
-                        break;
-                }
+        Class[] classes = new Class[]{NewsFragment.class, TopicFragment.class, ReadingFragment.class, VedioFragment.class, MineFragment.class};;
 
-            }
-        };
+        for (int i = 0; i < tabtitles.length; i++) {
+            TabHost.TabSpec tabSpec = tabHost.newTabSpec("" + i);
 
-        mHandler.post(runnable);
+            tabSpec.setIndicator(getEveryView(this, tabtitles, icons, i));
+
+            tabHost.addTab(tabSpec, classes[i], null);
+        }
+
+
+//        // 2 生成不同的标签 tag详单与是这个标签的id
+//        TabHost.TabSpec one = tabHost.newTabSpec("1");
+//
+////        one.setIndicator("one");
+////
+////        one.setIndicator(getEveryView(this));
+//
+//        TabHost.TabSpec two = tabHost.newTabSpec("2");
+//
+//        two.setIndicator("two");
+//
+//        TabHost.TabSpec three = tabHost.newTabSpec("3");
+//
+//        three.setIndicator("three");
+//
+//        tabHost.addTab(one, NewsFragment.class, null);
+//        tabHost.addTab(two, EmptyFragment.class, null);
+//        tabHost.addTab(three, EmptyFragment.class, null);
+
 
     }
 
-    Runnable runnable = new Runnable() {
-        @Override
-        public void run() {
-                Message message = mHandler.obtainMessage(0);
 
-                message.arg1 = now;
+    public View getEveryView( Context context, String[] titles, int[] icons , int index){
 
-                mHandler.sendMessage(message);
+        View titleView  = LayoutInflater.from(context).inflate(R.layout.item_title, null);
 
-                mHandler.postDelayed(this, space);
-                now++;
-        }
-    };
+        TextView title = (TextView) titleView.findViewById(R.id.item_title);
+        ImageView icon = (ImageView) titleView.findViewById(R.id.imageview);
+        title.setText(titles[index]);
+        icon.setImageResource(icons[index]);
+
+        return titleView;
+
+
+
+
+    }
+
 
 }

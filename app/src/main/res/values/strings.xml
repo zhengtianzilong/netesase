@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">netesase</string>
+    <string-array name="tab_title">
+        <item>新闻</item>
+        <item>阅读</item>
+        <item>视角</item>
+        <item>话题</item>
+        <item> 我 </item>
+    </string-array>
 </resources>

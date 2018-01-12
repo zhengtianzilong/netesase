@@ -38,6 +38,8 @@ public class TimeView extends View{
     private Paint outPaint;
     private RectF outerRect;
 
+    public OnTimeClickListener listener;
+
     // 外圈的角度
     public int degree;
 
@@ -135,15 +137,24 @@ public class TimeView extends View{
 
     }
 
+    public void setListener(OnTimeClickListener listener) {
+        this.listener = listener;
+
+
+    }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 
         switch (event.getAction()){
             case MotionEvent.ACTION_DOWN:
-
                 break;
             case MotionEvent.ACTION_UP:
+
+                if (listener != null){
+                    listener.onClickTimer(this);
+                }
+
                 break;
         }
 

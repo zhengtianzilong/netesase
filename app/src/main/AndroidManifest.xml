@@ -21,6 +21,8 @@
             </intent-filter>
         </activity>
 
+        <!--<activity android:name=".MainActivity"></activity>-->
+
         <service android:name=".service.DownloadImageService"></service>
 
         <!-- <activity android:name=".splash.activity.SplashActivity"></activity> -->
