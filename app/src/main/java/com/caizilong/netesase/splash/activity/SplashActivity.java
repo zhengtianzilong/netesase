@@ -29,6 +29,8 @@ import com.caizilong.netesase.splash.bean.Action;
 import com.caizilong.netesase.splash.bean.Ads;
 import com.caizilong.netesase.splash.bean.AdsDetail;
 import com.caizilong.netesase.util.Constant;
+import com.caizilong.netesase.util.HttpRespon;
+import com.caizilong.netesase.util.HttpUtil;
 import com.caizilong.netesase.util.ImageUtil;
 import com.caizilong.netesase.util.JsonUtil;
 import com.caizilong.netesase.util.Md5Helper;
@@ -250,36 +252,22 @@ public class SplashActivity extends AppCompatActivity {
     // 网络请求
     public void httpRequest(){
 
-        OkHttpClient okHttpClient = new OkHttpClient();
 
-        Request builder = new Request.Builder()
-                .url(Constant.SPLASH_URL)
-                .build()
-                ;
+        HttpUtil httpUtil = HttpUtil.getInstance();
 
-        okHttpClient.newCall(builder).enqueue(new Callback() {
+        httpUtil.getDate(Constant.SPLASH_URL, new HttpRespon<String>(String.class) {
             @Override
-            public void onFailure(Call call, IOException e) {
-
-                e.printStackTrace();
+            public void error(String msg) {
 
             }
-
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
-
-                if (!response.isSuccessful()){
-                    // 请求失败
-
-                }
-                String resquest = response.body().string();
-                Ads ads = JsonUtil.parseJson(resquest, Ads.class);
-
+            public void success(String result) {
+                Ads ads = JsonUtil.parseJson(result, Ads.class);
                 if (null != ads){
                     // 请求成功
                     Log.i(TAG, "onResponse: " + ads.toString());
 
-                    SharePrenceUtil.saveString(SplashActivity.this, JSON_CACHE,resquest );
+                    SharePrenceUtil.saveString(SplashActivity.this, JSON_CACHE,result );
                     SharePrenceUtil.saveInt(SplashActivity.this, JSON_CACHE_TIME_OUT, ads.getNext_req());
 
                     SharePrenceUtil.saveLong(SplashActivity.this, JSON_CACHE_LAST_SUCCESS, System.currentTimeMillis());
@@ -293,6 +281,51 @@ public class SplashActivity extends AppCompatActivity {
                 }
             }
         });
+
+//
+//        OkHttpClient okHttpClient = new OkHttpClient();
+//
+//        Request builder = new Request.Builder()
+//                .url(Constant.SPLASH_URL)
+//                .build()
+//                ;
+//
+//        okHttpClient.newCall(builder).enqueue(new Callback() {
+//            @Override
+//            public void onFailure(Call call, IOException e) {
+//
+//                e.printStackTrace();
+//
+//            }
+//
+//            @Override
+//            public void onResponse(Call call, Response response) throws IOException {
+//
+//                if (!response.isSuccessful()){
+//                    // 请求失败
+//
+//                }
+//                String resquest = response.body().string();
+//                Ads ads = JsonUtil.parseJson(resquest, Ads.class);
+//
+//                if (null != ads){
+//                    // 请求成功
+//                    Log.i(TAG, "onResponse: " + ads.toString());
+//
+//                    SharePrenceUtil.saveString(SplashActivity.this, JSON_CACHE,resquest );
+//                    SharePrenceUtil.saveInt(SplashActivity.this, JSON_CACHE_TIME_OUT, ads.getNext_req());
+//
+//                    SharePrenceUtil.saveLong(SplashActivity.this, JSON_CACHE_LAST_SUCCESS, System.currentTimeMillis());
+//
+//                    Intent intent = new Intent(SplashActivity.this, DownloadImageService.class);
+//                    intent.putExtra(DownloadImageService.ADS_DATE, ads);
+//                    startService(intent);
+//                }else {
+//                    // 请求失败
+//
+//                }
+//            }
+//        });
 
 
     }

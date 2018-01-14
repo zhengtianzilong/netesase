@@ -44,6 +44,9 @@ public class MainActivity extends AppCompatActivity {
             tabSpec.setIndicator(getEveryView(this, tabtitles, icons, i));
 
             tabHost.addTab(tabSpec, classes[i], null);
+
+            tabHost.getTabWidget().getChildAt(i).getLayoutParams().height = 200;
+
         }
 
 
